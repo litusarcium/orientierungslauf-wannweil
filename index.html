@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR-Abenteuer</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
-        video { width: 100%; max-width: 400px; }
         .location { padding: 10px; margin: 10px; border: 2px solid black; border-radius: 5px; background-color: #f4f4f4; display: flex; justify-content: space-between; max-width: 300px; margin: auto; }
         .reached { color: green; font-weight: bold; }
         .not-reached { color: red; font-weight: bold; }
@@ -16,13 +14,7 @@
 <body>
 
     <h1>QR-Abenteuer</h1>
-    <p>Scanne die QR-Codes, um alle Punkte zu erreichen!</p>
-
-    <button onclick="startScanner()">📷 Scanner starten</button>
-    <button onclick="stopScanner()">⛔ Scanner stoppen</button>
-
-    <video id="camera" autoplay></video>
-    <canvas id="qr-canvas" style="display: none;"></canvas>
+    <p>Scanne QR-Codes, um deine Orte zu entdecken!</p>
 
     <h2>Deine erreichten Orte:</h2>
     <div id="locations"></div>
@@ -30,11 +22,43 @@
     <button onclick="resetProgress()">🔄 Fortschritt zurücksetzen</button>
 
     <script>
-        let video = document.getElementById("camera");
-        let canvas = document.getElementById("qr-canvas");
-        let context = canvas.getContext("2d");
-        let scanning = false;
-        let stream;
+        // Liste aller möglichen Orte
+        const allLocations = { "burg": "🏰 Burg", "schloss": "🏯 Schloss", "museum": "🏛️ Museum", "park": "🌳 Park" };
 
-        const allLocations = { "burg": "🏰 Burg", "schloss": "🏯 Schloss", "
+        // Fortschritt aus Speicher laden
+        let reachedLocations = JSON.parse(localStorage.getItem("qrProgress")) || [];
 
+        // Prüfen, ob ein Code in der URL steht
+        const urlParams = new URLSearchParams(window.location.search);
+        const scannedCode = urlParams.get("code");
+
+        if (scannedCode && allLocations[scannedCode] && !reachedLocations.includes(scannedCode)) {
+            reachedLocations.push(scannedCode);
+            localStorage.setItem("qrProgress", JSON.stringify(reachedLocations));
+            alert("✅ Erfolgreich gescannt: " + allLocations[scannedCode]);
+        }
+
+        // Orte in der UI aktualisieren
+        function updateLocations() {
+            const container = document.getElementById("locations");
+            container.innerHTML = "";
+            for (const key in allLocations) {
+                const div = document.createElement("div");
+                div.className = "location";
+                div.innerHTML = `<span>${allLocations[key]}</span> <span class="${reachedLocations.includes(key) ? 'reached' : 'not-reached'}">${reachedLocations.includes(key) ? '✅ Erreicht!' : '❌ Noch nicht erreicht'}</span>`;
+                container.appendChild(div);
+            }
+        }
+
+        // Fortschritt zurücksetzen
+        function resetProgress() {
+            localStorage.removeItem("qrProgress");
+            reachedLocations = [];
+            updateLocations();
+        }
+
+        updateLocations();
+    </script>
+
+</body>
+</html>
