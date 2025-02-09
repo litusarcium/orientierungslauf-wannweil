@@ -3,10 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meine Website</title>
+    <title>QR-Scanner mit Speicher</title>
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #scanner {
+            width: 300px;
+            margin: auto;
+        }
+        .code-box {
+            display: inline-block;
+            padding: 10px;
+            margin: 10px;
+            border: 2px solid black;
+            border-radius: 5px;
+            background-color: #f4f4f4;
+        }
+    </style>
 </head>
 <body>
-    <h1>Willkommen auf meiner Website!</h1>
-    <p>Hier kannst du deine gescannten Orte sehen.</p>
+
+    <h1>QR-Code Scanner</h1>
+    <p>Scanne einen QR-Code, um ihn zu speichern!</p>
+
+    <div id="scanner"></div>
+    <button onclick="startScanner()">Scanner starten</button>
+    <button onclick="stopScanner()">Scanner stoppen</button>
+
+    <h2>Gespeicherte Codes:</h2>
+    <div id="scanned-codes"></div>
+
+    <script>
+        let scanner;
+        const scannedCodes = JSON.parse(localStorage.getItem("qrCodes")) || [];
+
+        function startScanner() {
+            scanner = new Html5Qrcode("scanner");
+            scanner.start(
+                { facingMode: "environment" },  // Rückkamera
+                { fps: 10, qrbox: 250 },
+                onScanSuccess
+            );
+        }
+
+        function stopScanner() {
+            if (scanner) scanner.stop();
+        }
+
+        function onScanSuccess(decodedText) {
+            if (!scannedCodes.includes(decodedText)) {
+                scannedCodes.push(decodedText);
+                localStorage.setItem("qrCodes", JSON.stringify(scannedCodes));
+                displayCodes();
+            }
+        }
+
+        function displayCodes() {
+            const container = document.getElementById("scanned-codes");
+            container.innerHTML = "";
+            scannedCodes.forEach(code => {
+                const div = document.createElement("div");
+                div.className = "code-box";
+                div.textContent = code;
+                container.appendChild(div);
+            });
+        }
+
+        // Bereits gespeicherte Codes anzeigen
+        displayCodes();
+    </script>
+
 </body>
 </html>
