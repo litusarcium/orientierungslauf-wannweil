@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR-Abenteuer</title>
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
-        #scanner-container { display: none; margin: auto; width: 300px; }
+        video { width: 100%; max-width: 400px; }
         .location { padding: 10px; margin: 10px; border: 2px solid black; border-radius: 5px; background-color: #f4f4f4; display: flex; justify-content: space-between; max-width: 300px; margin: auto; }
         .reached { color: green; font-weight: bold; }
         .not-reached { color: red; font-weight: bold; }
@@ -20,10 +20,9 @@
 
     <button onclick="startScanner()">📷 Scanner starten</button>
     <button onclick="stopScanner()">⛔ Scanner stoppen</button>
-    
-    <div id="scanner-container">
-        <div id="qr-reader"></div>
-    </div>
+
+    <video id="camera" autoplay></video>
+    <canvas id="qr-canvas" style="display: none;"></canvas>
 
     <h2>Deine erreichten Orte:</h2>
     <div id="locations"></div>
@@ -31,56 +30,11 @@
     <button onclick="resetProgress()">🔄 Fortschritt zurücksetzen</button>
 
     <script>
-        let scannerRunning = false;
-        const allLocations = { "burg": "🏰 Burg", "schloss": "🏯 Schloss", "museum": "🏛️ Museum", "park": "🌳 Park" };
-        let reachedLocations = JSON.parse(localStorage.getItem("qrProgress")) || [];
-        const scannerContainer = document.getElementById("scanner-container");
+        let video = document.getElementById("camera");
+        let canvas = document.getElementById("qr-canvas");
+        let context = canvas.getContext("2d");
+        let scanning = false;
+        let stream;
 
-        function startScanner() {
-            if (scannerRunning) return;
-            scannerContainer.style.display = "block";
-            scannerRunning = true;
+        const allLocations = { "burg": "🏰 Burg", "schloss": "🏯 Schloss", "
 
-            const qrScanner = new Html5Qrcode("qr-reader");
-            qrScanner.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: 250 },
-                (decodedText) => {
-                    if (!reachedLocations.includes(decodedText) && allLocations[decodedText]) {
-                        reachedLocations.push(decodedText);
-                        localStorage.setItem("qrProgress", JSON.stringify(reachedLocations));
-                        updateLocations();
-                        alert("✅ Erfolgreich gescannt: " + allLocations[decodedText]);
-                    }
-                },
-                (errorMessage) => { console.warn("Scan-Fehler:", errorMessage); }
-            ).catch(err => console.error("Scanner-Fehler:", err));
-        }
-
-        function stopScanner() {
-            scannerContainer.style.display = "none";
-            scannerRunning = false;
-        }
-
-        function updateLocations() {
-            const container = document.getElementById("locations");
-            container.innerHTML = "";
-            for (const key in allLocations) {
-                const div = document.createElement("div");
-                div.className = "location";
-                div.innerHTML = `<span>${allLocations[key]}</span> <span class="${reachedLocations.includes(key) ? 'reached' : 'not-reached'}">${reachedLocations.includes(key) ? '✅ Erreicht!' : '❌ Noch nicht erreicht'}</span>`;
-                container.appendChild(div);
-            }
-        }
-
-        function resetProgress() {
-            localStorage.removeItem("qrProgress");
-            reachedLocations = [];
-            updateLocations();
-        }
-
-        updateLocations();
-    </script>
-
-</body>
-</html>
