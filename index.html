@@ -13,6 +13,7 @@
         #scanner {
             width: 300px;
             margin: auto;
+            display: none;
         }
         .location {
             padding: 10px;
@@ -41,8 +42,8 @@
     <p>Scanne die QR-Codes, um alle Punkte zu erreichen!</p>
 
     <div id="scanner"></div>
-    <button onclick="startScanner()">Scanner starten</button>
-    <button onclick="stopScanner()">Scanner stoppen</button>
+    <button onclick="startScanner()">📷 Scanner starten</button>
+    <button onclick="stopScanner()">⛔ Scanner stoppen</button>
 
     <h2>Deine erreichten Orte:</h2>
     <div id="locations"></div>
@@ -51,6 +52,8 @@
 
     <script>
         let scanner;
+        const scannerDiv = document.getElementById("scanner");
+
         const allLocations = {
             "burg": "🏰 Burg",
             "schloss": "🏯 Schloss",
@@ -61,16 +64,23 @@
         let reachedLocations = JSON.parse(localStorage.getItem("qrProgress")) || [];
 
         function startScanner() {
+            scannerDiv.style.display = "block"; // Scanner anzeigen
             scanner = new Html5Qrcode("scanner");
+
             scanner.start(
-                { facingMode: "environment" }, 
+                { facingMode: "environment" }, // Rückkamera verwenden
                 { fps: 10, qrbox: 250 },
-                onScanSuccess
-            );
+                onScanSuccess,
+                errorMessage => { console.warn(errorMessage); }
+            ).catch(err => console.error("Fehler beim Starten des Scanners:", err));
         }
 
         function stopScanner() {
-            if (scanner) scanner.stop();
+            if (scanner) {
+                scanner.stop().then(() => {
+                    scannerDiv.style.display = "none"; // Scanner ausblenden
+                }).catch(err => console.error("Fehler beim Stoppen des Scanners:", err));
+            }
         }
 
         function onScanSuccess(decodedText) {
@@ -78,6 +88,7 @@
                 reachedLocations.push(decodedText);
                 localStorage.setItem("qrProgress", JSON.stringify(reachedLocations));
                 updateLocations();
+                alert("✅ Erfolgreich gescannt: " + allLocations[decodedText]);
             }
         }
 
