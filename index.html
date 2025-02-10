@@ -5,59 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR-Abenteuer</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .location { padding: 10px; margin: 10px; border: 2px solid black; border-radius: 5px; background-color: #f4f4f4; display: flex; justify-content: space-between; max-width: 300px; margin: auto; }
-        .reached { color: green; font-weight: bold; }
-        .not-reached { color: red; font-weight: bold; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            color: #2E7D32; /* Waldgrün */
+        }
+        .qr-list {
+            margin-top: 20px;
+        }
+        .qr-item {
+            padding: 12px;
+            margin: 10px auto;
+            width: 250px;
+            border-radius: 8px;
+            background-color: #2E7D32; /* Waldgrün */
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .reset-btn {
+            margin-top: 20px;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            background-color: #C62828; /* Rot */
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .reset-btn:hover {
+            background-color: #B71C1C; /* Dunkleres Rot */
+        }
     </style>
 </head>
 <body>
 
     <h1>QR-Abenteuer</h1>
-    <p>Scanne QR-Codes, um deine Orte zu entdecken!</p>
+    <p>Scanne QR-Codes und sie erscheinen hier!</p>
 
-    <h2>Deine erreichten Orte:</h2>
-    <div id="locations"></div>
+    <div id="qrContainer" class="qr-list"></div>
 
-    <button onclick="resetProgress()">🔄 Fortschritt zurücksetzen</button>
+    <button class="reset-btn" onclick="resetProgress()">🔄 Fortschritt zurücksetzen</button>
 
     <script>
-        // Liste aller möglichen Orte
-        const allLocations = { "burg": "🏰 Burg", "schloss": "🏯 Schloss", "museum": "🏛️ Museum", "park": "🌳 Park" };
-
         // Fortschritt aus Speicher laden
-        let reachedLocations = JSON.parse(localStorage.getItem("qrProgress")) || [];
+        let scannedCodes = JSON.parse(localStorage.getItem("qrProgress")) || [];
 
         // Prüfen, ob ein Code in der URL steht
         const urlParams = new URLSearchParams(window.location.search);
         const scannedCode = urlParams.get("code");
 
-        if (scannedCode && allLocations[scannedCode] && !reachedLocations.includes(scannedCode)) {
-            reachedLocations.push(scannedCode);
-            localStorage.setItem("qrProgress", JSON.stringify(reachedLocations));
-            alert("✅ Erfolgreich gescannt: " + allLocations[scannedCode]);
+        if (scannedCode && !scannedCodes.includes(scannedCode)) {
+            scannedCodes.push(scannedCode);
+            localStorage.setItem("qrProgress", JSON.stringify(scannedCodes));
+            alert("✅ QR-Code " + scannedCode + " erfolgreich gescannt!");
         }
 
-        // Orte in der UI aktualisieren
-        function updateLocations() {
-            const container = document.getElementById("locations");
+        // UI aktualisieren
+        function updateQRList() {
+            const container = document.getElementById("qrContainer");
             container.innerHTML = "";
-            for (const key in allLocations) {
+            scannedCodes.forEach(code => {
                 const div = document.createElement("div");
-                div.className = "location";
-                div.innerHTML = `<span>${allLocations[key]}</span> <span class="${reachedLocations.includes(key) ? 'reached' : 'not-reached'}">${reachedLocations.includes(key) ? '✅ Erreicht!' : '❌ Noch nicht erreicht'}</span>`;
+                div.className = "qr-item";
+                div.innerText = "📍 Punkt " + code;
                 container.appendChild(div);
-            }
+            });
         }
 
         // Fortschritt zurücksetzen
         function resetProgress() {
             localStorage.removeItem("qrProgress");
-            reachedLocations = [];
-            updateLocations();
+            scannedCodes = [];
+            updateQRList();
         }
 
-        updateLocations();
+        updateQRList();
     </script>
 
 </body>
