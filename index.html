@@ -51,7 +51,15 @@
     width: 60px; /* Größe des Bildes */
     height: auto;
 }
+        /* Stil für die Karte */
+#map {
+    height: 400px;
+    width: 100%;
+    margin-top: 20px;
+    border: 2px solid #4a7c59; /* Waldgrün */
+}
     </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
 
@@ -66,14 +74,19 @@
     <div id="qrContainer" class="qr-list"></div>
 
     <button class="reset-btn" onclick="resetProgress()">🔄 Fortschritt zurücksetzen</button>
-
+<div id="map"></div>
     
-        
+ <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>       
         <script>
     // Fortschritt aus localStorage laden
     let scannedCodes = JSON.parse(localStorage.getItem("qrProgress")) || [];
     let timeStamps = JSON.parse(localStorage.getItem("qrTimestamps")) || [];
-
+// Neue: Leaflet (Kartenfunktion) – QR-Code Koordinaten zuordnen
+const qrLocations = {
+    "21": [48.137154, 11.576124], // Beispielkoordinaten: München
+    "22": [52.520008, 13.404954], // Beispiel: Berlin
+    "23": [50.110924, 8.682127]   // Beispiel: Frankfurt
+};
     // Prüfen, ob ein Code in der URL steht
     const urlParams = new URLSearchParams(window.location.search);
     const scannedCode = urlParams.get("code");
@@ -133,6 +146,35 @@
     }
 
     updateQRList();
+            // Leaflet JS muss ebenfalls eingebunden sein – füge diesen <script>-Tag in den Body ein, direkt vor deinem eigenen <script> (siehe unten)
+// <script src="https://unpkg.com/leaflet/dist/leaflet.js"><
+
+// Karteninitialisierung:
+let map = L.map('map').setView([51.1657, 10.4515], 6); // Zentriert auf Deutschland
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Funktion zum Aktualisieren der Kartenmarker anhand der gescannten Codes
+function updateMap() {
+    // Entferne alle vorhandenen Marker
+    map.eachLayer(function(layer) {
+        if (layer instanceof L.Marker) {
+            map.removeLayer(layer);
+        }
+    });
+    // Füge für jeden gescannten QR-Code einen Marker hinzu, sofern Koordinaten definiert sind
+    scannedCodes.forEach(function(code) {
+        if (qrLocations[code]) {
+            L.marker(qrLocations[code]).addTo(map)
+                .bindPopup(`📍 Punkt ${code}`);
+        }
+    });
+}
+
+// Rufe updateMap() am Ende von updateQRList() auf, um die Karte nach dem Aktualisieren auch zu aktualisieren.
+// Füge dazu in deiner Funktion updateQRList() (im vorhandenen Code) nach der Schleife einfach folgende Zeile ein:
+updateMap();
 </script>
 
 
