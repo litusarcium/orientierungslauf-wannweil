@@ -68,39 +68,72 @@
     <button class="reset-btn" onclick="resetProgress()">🔄 Fortschritt zurücksetzen</button>
 
     <script>
-        // Fortschritt aus Speicher laden
-        let scannedCodes = JSON.parse(localStorage.getItem("qrProgress")) || [];
+        
+        <script>
+    // Fortschritt aus localStorage laden
+    let scannedCodes = JSON.parse(localStorage.getItem("qrProgress")) || [];
+    let timeStamps = JSON.parse(localStorage.getItem("qrTimestamps")) || [];
 
-        // Prüfen, ob ein Code in der URL steht
-        const urlParams = new URLSearchParams(window.location.search);
-        const scannedCode = urlParams.get("code");
+    // Prüfen, ob ein Code in der URL steht
+    const urlParams = new URLSearchParams(window.location.search);
+    const scannedCode = urlParams.get("code");
 
-        if (scannedCode && !scannedCodes.includes(scannedCode)) {
-            scannedCodes.push(scannedCode);
-            localStorage.setItem("qrProgress", JSON.stringify(scannedCodes));
-            alert("✅ QR-Code " + scannedCode + " erfolgreich gescannt!");
-        }
+    if (scannedCode && !scannedCodes.includes(scannedCode)) {
+        let currentTime = new Date().getTime(); // Aktuelle Zeit in Millisekunden
 
-        // UI aktualisieren
-        function updateQRList() {
-            const container = document.getElementById("qrContainer");
-            container.innerHTML = "";
-            scannedCodes.forEach(code => {
-                const div = document.createElement("div");
-                div.className = "qr-item";
-                div.innerText = "📍 Posten " + code;
-                container.appendChild(div);
-            });
-        }
+        // Falls es schon einen vorherigen Scan gab, Differenz berechnen
+        let timeDiffMS = timeStamps.length > 0 
+            ? currentTime - timeStamps[timeStamps.length - 1] 
+            : 0; // Erste Zeit = 0
 
-        // Fortschritt zurücksetzen
-        function resetProgress() {
-            localStorage.removeItem("qrProgress");
-            scannedCodes = [];
-            updateQRList();
-        }
+        let minutes = Math.floor(timeDiffMS / 60000); // Ganze Minuten
+        let seconds = Math.floor((timeDiffMS % 60000) / 1000); // Restliche Sekunden
 
+        let timeDiffFormatted = minutes + ":" + (seconds < 10 ? "0" : "") + seconds; // Format MM:SS
+
+        scannedCodes.push(scannedCode);
+        timeStamps.push(currentTime);
+
+        // Daten speichern
+        localStorage.setItem("qrProgress", JSON.stringify(scannedCodes));
+        localStorage.setItem("qrTimestamps", JSON.stringify(timeStamps));
+
+        alert(`✅ QR-Code ${scannedCode} erfolgreich gescannt! (${timeDiffFormatted} Min.)`);
+    }
+
+    // UI aktualisieren
+    function updateQRList() {
+        const container = document.getElementById("qrContainer");
+        container.innerHTML = "";
+        
+        scannedCodes.forEach((code, index) => {
+            let timeDiffFormatted = "0:00"; // Standard für den ersten Code
+            
+            if (index > 0) {
+                let timeDiffMS = timeStamps[index] - timeStamps[index - 1];
+                let minutes = Math.floor(timeDiffMS / 60000);
+                let seconds = Math.floor((timeDiffMS % 60000) / 1000);
+                timeDiffFormatted = minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+            }
+
+            const div = document.createElement("div");
+            div.className = "qr-item";
+            div.innerText = `📍 Punkt ${code} (${timeDiffFormatted} Min.)`;
+            container.appendChild(div);
+        });
+    }
+
+    // Fortschritt zurücksetzen
+    function resetProgress() {
+        localStorage.removeItem("qrProgress");
+        localStorage.removeItem("qrTimestamps");
+        scannedCodes = [];
+        timeStamps = [];
         updateQRList();
+    }
+
+    updateQRList();
+</script>
     </script>
 
 </body>
