@@ -4,191 +4,255 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Festpostennetz Wannweil</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
             background-color: #f4f4f4;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
-        h1 {
-            color: #2E7D32; /* Waldgrün */
-        }
-        .qr-list {
-            margin-top: 20px;
-        }
-        .qr-item {
-            padding: 12px;
-            margin: 10px auto;
-            width: 250px;
-            border-radius: 8px;
+        
+        header {
             background-color: #2E7D32; /* Waldgrün */
             color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 60px;
+        }
+
+        nav {
+            background-color: #1B5E20; /* Dunkleres Grün */
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
             font-size: 18px;
             font-weight: bold;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px;
+        }
+
+        .info {
+            flex: 1;
+            max-width: 500px;
             text-align: center;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
         }
-        .reset-btn {
-            margin-top: 20px;
-            padding: 10px 15px;
-            font-size: 16px;
-            border: none;
-            background-color: #C62828; /* Rot */
+
+        .info img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .content {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px;
+            gap: 20px;
+        }
+
+        .left, .right {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        #qrContainer {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .qr-item {
+            background-color: #2E7D32;
             color: white;
+            padding: 10px;
+            margin: 5px 0;
             border-radius: 5px;
+            font-size: 18px;
+        }
+
+        #map {
+            height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .button {
+            background-color: #C62828;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
             cursor: pointer;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            margin: 10px;
         }
-        .reset-btn:hover {
-            background-color: #B71C1C; /* Dunkleres Rot */
+
+        .button:hover {
+            background-color: #B71C1C;
         }
-        /* Stil für das Bild in der rechten oberen Ecke */
-.corner-image {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    width: 60px; /* Größe des Bildes */
-    height: auto;
-}
-        /* Stil für die Karte */
-#map {
-    height: 400px;
-    width: 100%;
-    margin-top: 20px;
-    border: 2px solid #4a7c59; /* Waldgrün */
-}
     </style>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
 
-    <h1>Festpostennetz Wannweil</h1>
-    <img src="logo.png" alt="Logo" class="corner-image">
-    <p>Wenn du die QR-Codes an den Posten scannst, erscheinen sie hier.
-    So erhälst du deinen Lauffortschritt. 
-    Auf der Karte werden die einzelnen Posten ebenfalls eingetragen.
-    Außerdem gibt die Zeit an, wie lange du von einem zum anderen Posten gebraucht.
+    <header>
+        <h1>Festpostennetz Wannweil</h1>
+        <img src="logo.png" alt="Logo" class="logo">
+    </header>
 
-    Bitte benutze kein Privat-Tab, sonst funktioniert das Speichern nicht!
+    <nav>
+        <a href="#">Startseite</a>
+        <a href="#">Erklärung</a>
+        <a href="#">Ergebnisse</a>
+    </nav>
 
-    </p>
+    <div class="container">
+        <div class="info">
+            <p>Wenn du die QR-Codes an den Posten scannst, erscheinen sie hier.
+            So erhältst du deinen Lauffortschritt.
+            Bitte benutze kein Privat-Tab, sonst funktioniert das Speichern nicht!</p>
+            <img src="erklärung.png" alt="Erklärung Bild">
+        </div>
+    </div>
 
-    <div id="qrContainer" class="qr-list"></div>
+    <div class="content">
+        <div class="left">
+            <h2>Gescannt:</h2>
+            <div id="qrContainer"></div>
+        </div>
+        <div class="right">
+            <h2>Karte:</h2>
+            <div id="map"></div>
+        </div>
+    </div>
 
-    <button class="reset-btn" onclick="resetProgress()">🔄 Fortschritt zurücksetzen</button>
-<div id="map"></div>
-    
- <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>       
-        <script>
-    // Fortschritt aus localStorage laden
-    let scannedCodes = JSON.parse(localStorage.getItem("qrProgress")) || [];
-    let timeStamps = JSON.parse(localStorage.getItem("qrTimestamps")) || [];
-// Neue: Leaflet (Kartenfunktion) – QR-Code Koordinaten zuordnen
-const qrLocations = {
-    "21": [48.5119958, 9.1536362], // Beispielkoordinaten: München
-    "22": [48.5147242, 9.1474562], // Beispiel: Berlin
-    "23": [48.5145260, 9.1573385]   // Beispiel: Frankfurt
-};
-    // Prüfen, ob ein Code in der URL steht
-    const urlParams = new URLSearchParams(window.location.search);
-    const scannedCode = urlParams.get("code");
+    <div class="footer">
+        <h3>Gesamtzeit: <span id="totalTime">0:00</span></h3>
+        <button class="button" onclick="stopTimer()">🏁 Lauf abschließen</button>
+        <button class="button" onclick="resetProgress()">🔄 Zurücksetzen</button>
+    </div>
 
-    if (scannedCode && !scannedCodes.includes(scannedCode)) {
-        let currentTime = new Date().getTime(); // Aktuelle Zeit in Millisekunden
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        const qrLocations = {
+            "01": [48.137154, 11.576124], // Beispiel: München
+            "02": [52.520008, 13.404954], // Berlin
+            "03": [50.110924, 8.682127]   // Frankfurt
+        };
 
-        // Falls es schon einen vorherigen Scan gab, Differenz berechnen
-        let timeDiffMS = timeStamps.length > 0 
-            ? currentTime - timeStamps[timeStamps.length - 1] 
-            : 0; // Erste Zeit = 0
+        let scannedCodes = JSON.parse(localStorage.getItem("qrProgress")) || [];
+        let timeStamps = JSON.parse(localStorage.getItem("qrTimestamps")) || [];
+        let startTime = timeStamps.length > 0 ? timeStamps[0] : null;
+        let timerRunning = true;
 
-        let minutes = Math.floor(timeDiffMS / 60000); // Ganze Minuten
-        let seconds = Math.floor((timeDiffMS % 60000) / 1000); // Restliche Sekunden
+        const map = L.map('map').setView([51.1657, 10.4515], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        let markers = [];
 
-        let timeDiffFormatted = minutes + ":" + (seconds < 10 ? "0" : "") + seconds; // Format MM:SS
+        function resetMapMarkers() {
+            markers.forEach(marker => marker.remove());
+            markers = [];
+        }
 
-        scannedCodes.push(scannedCode);
-        timeStamps.push(currentTime);
+        function updateMapMarkers() {
+            resetMapMarkers();
+            scannedCodes.forEach(code => {
+                if (qrLocations[code]) {
+                    const marker = L.marker(qrLocations[code]).addTo(map)
+                        .bindPopup(`QR-Code ${code} gefunden!`);
+                    markers.push(marker);
+                }
+            });
+        }
 
-        // Daten speichern
-        localStorage.setItem("qrProgress", JSON.stringify(scannedCodes));
-        localStorage.setItem("qrTimestamps", JSON.stringify(timeStamps));
+        const urlParams = new URLSearchParams(window.location.search);
+        const scannedCode = urlParams.get("code");
 
-        alert(`✅ QR-Code ${scannedCode} erfolgreich gescannt! (${timeDiffFormatted} Min.)`);
-    }
+        if (scannedCode && !scannedCodes.includes(scannedCode)) {
+            let currentTime = new Date().getTime();
+            scannedCodes.push(scannedCode);
+            timeStamps.push(currentTime);
+            if (!startTime) startTime = currentTime;
+            localStorage.setItem("qrProgress", JSON.stringify(scannedCodes));
+            localStorage.setItem("qrTimestamps", JSON.stringify(timeStamps));
+            alert(`QR-Code ${scannedCode} erfolgreich gescannt!`);
+        }
 
-    // UI aktualisieren
-    function updateQRList() {
-        const container = document.getElementById("qrContainer");
-        container.innerHTML = "";
-        
-        scannedCodes.forEach((code, index) => {
-            let timeDiffFormatted = "0:00"; // Standard für den ersten Code
-            
-            if (index > 0) {
-                let timeDiffMS = timeStamps[index] - timeStamps[index - 1];
-                let minutes = Math.floor(timeDiffMS / 60000);
-                let seconds = Math.floor((timeDiffMS % 60000) / 1000);
-                timeDiffFormatted = minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+        function updateQRList() {
+            const container = document.getElementById("qrContainer");
+            container.innerHTML = "";
+
+            scannedCodes.forEach((code, index) => {
+                let timeDiffFormatted = "0:00";
+                if (index > 0) {
+                    let timeDiffMS = timeStamps[index] - timeStamps[index - 1];
+                    let minutes = Math.floor(timeDiffMS / 60000);
+                    let seconds = Math.floor((timeDiffMS % 60000) / 1000);
+                    timeDiffFormatted = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+                }
+
+                const div = document.createElement("div");
+                div.className = "qr-item";
+                div.innerText = `📍 Punkt ${code} (${timeDiffFormatted})`;
+                container.appendChild(div);
+            });
+
+            updateTotalTime();
+        }
+
+        function updateTotalTime() {
+            if (startTime && timerRunning) {
+                let totalTime = new Date().getTime() - startTime;
+                let minutes = Math.floor(totalTime / 60000);
+                let seconds = Math.floor((totalTime % 60000) / 1000);
+                document.getElementById("totalTime").innerText = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
             }
+        }
 
-            const div = document.createElement("div");
-            div.className = "qr-item";
-            div.innerText = `📍 Posten ${code} (${timeDiffFormatted} Min.)`;
-            container.appendChild(div);
-        });
-    }
-function resetMapMarkers() {
-    // Alle Marker von der Karte entfernen
-    if (window.markers) {
-        window.markers.forEach(marker => {
-            marker.remove();
-        });
-    }
-    window.markers = []; // Leere Marker-Liste zurücksetzen
-}
-    // Fortschritt zurücksetzen
-    function resetProgress() {
-        localStorage.removeItem("qrProgress");
-        localStorage.removeItem("qrTimestamps");
-        scannedCodes = [];
-        timeStamps = [];
+        function stopTimer() {
+            timerRunning = false;
+        }
+
+        function resetProgress() {
+            localStorage.removeItem("qrProgress");
+            localStorage.removeItem("qrTimestamps");
+            scannedCodes = [];
+            timeStamps = [];
+            startTime = null;
+            timerRunning = true;
+            updateQRList();
+            resetMapMarkers();
+        }
+
         updateQRList();
-        resetMapMarkers();
-    }
-
-    updateQRList();
-            // Leaflet JS muss ebenfalls eingebunden sein – füge diesen <script>-Tag in den Body ein, direkt vor deinem eigenen <script> (siehe unten)
-// <script src="https://unpkg.com/leaflet/dist/leaflet.js"><
-
-// Karteninitialisierung:
-let map = L.map('map').setView([48.5140647, 9.1524407], 12); // Zentriert auf Deutschland
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-
-// Funktion zum Aktualisieren der Kartenmarker anhand der gescannten Codes
-function updateMap() {
-    // Entferne alle vorhandenen Marker
-    map.eachLayer(function(layer) {
-        if (layer instanceof L.Marker) {
-            map.removeLayer(layer);
-        }
-    });
-    // Füge für jeden gescannten QR-Code einen Marker hinzu, sofern Koordinaten definiert sind
-    scannedCodes.forEach(function(code) {
-        if (qrLocations[code]) {
-            L.marker(qrLocations[code]).addTo(map)
-                .bindPopup(`📍 Punkt ${code}`);
-        }
-    });
-}
-
-// Rufe updateMap() am Ende von updateQRList() auf, um die Karte nach dem Aktualisieren auch zu aktualisieren.
-// Füge dazu in deiner Funktion updateQRList() (im vorhandenen Code) nach der Schleife einfach folgende Zeile ein:
-updateMap();
-</script>
-
+        updateMapMarkers();
+        setInterval(updateTotalTime, 1000);
+    </script>
 
 </body>
 </html>
+
