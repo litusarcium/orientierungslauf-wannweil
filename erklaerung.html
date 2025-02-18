@@ -3,61 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Erklärung – Festpostennetz Wannweil</title>
+    <title>Festpostennetz Wannweil</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
             background-color: #f4f4f4;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
-        h1 {
-            color: #2E7D32; /* Waldgrün */
-        }
-        nav {
+        
+        header {
             background-color: #2E7D32; /* Waldgrün */
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 60px;
+        }
+
+        nav {
+            background-color: #1B5E20; /* Dunkleres Grün */
             padding: 10px;
             text-align: center;
         }
+
         nav a {
             color: white;
             text-decoration: none;
-            font-size: 18px;
             margin: 0 15px;
-            padding: 8px 12px;
-            display: inline-block;
-            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
         }
-        nav a:hover {
-            background-color: #B71C1C; /* Dunkleres Rot */
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px;
         }
-        .content {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
+
+        .info {
+            flex: 1;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .info img {
+            max-width: 100%;
             border-radius: 8px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-            text-align: left;
+            margin-top: 10px;
+        }
+
+        .content {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px;
+            gap: 20px;
+        }
+
+        .left, .right {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        #qrContainer {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .qr-item {
+            background-color: #2E7D32;
+            color: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+
+        #map {
+            height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .button {
+            background-color: #C62828;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        .button:hover {
+            background-color: #B71C1C;
         }
     </style>
 </head>
-   <header>
+<body>
+
+    <header>
         <h1>Festpostennetz Wannweil</h1>
-        <img src="logo.png" alt="Logo" class="corner-image">
+        <img src="logo.png" alt="Logo" class="logo">
     </header>
 
-    <!-- Navigation Bar -->
-    <nav class="navbar">
+    <nav>
         <a href="index.html">Startseite</a>
-        <a href="erklärung.html">Erklärung</a>
+        <a href="erklaerung.html">Erklärung</a>
         <a href="ergebnisse.html">Ergebnisse</a>
     </nav>
 
-    <div class="content">
-        <!-- Hier wird kein Inhalt angezeigt, da nur die Kopfzeile der Hauptseite gewünscht wurde -->
-        <p>Ergebnisse sind hier noch nicht sichtbar.</p>
+    <div class="container">
+        <div class="info">
+            <p>Die Website befindet sich noch im Aufbau. Daher ist dieses Feature aktuell nicht verfügbar.</p>
+            <img src="erklärung.png" alt="Erklärung Bild">
+        </div>
     </div>
 </body>
 </html>
-
