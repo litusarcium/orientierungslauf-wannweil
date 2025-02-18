@@ -249,6 +249,10 @@
 
     function stopTimer() {
         timerRunning = false;
+         let totalTimeMS = new Date().getTime() - timeStamps[0]; // Zeit seit dem ersten Scan
+    let minutes = Math.floor(totalTimeMS / 60000); // Ganze Minuten
+    let seconds = Math.floor((totalTimeMS % 60000) / 1000); // Restliche Sekunden
+    alert(`Gesamtzeit: ${minutes}:${seconds < 10 ? "0" : ""}${seconds} Min.`); 
     }
 
     function resetProgress() {
