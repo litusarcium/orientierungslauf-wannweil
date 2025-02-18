@@ -141,7 +141,7 @@
 
     <div class="content">
         <div class="left">
-            <h2>Gescannt:</h2>
+            <h2>Lauf - hier werden die gescannten Posten angezeigt:</h2>
             <div id="qrContainer"></div>
         </div>
         <div class="right">
@@ -152,8 +152,8 @@
 
     <div class="footer">
         <h3>Gesamtzeit: <span id="totalTime">0:00</span></h3>
-        <button class="button" onclick="stopTimer()">🏁 Lauf abschließen</button>
-        <button class="button" onclick="resetProgress()">🔄 Zurücksetzen</button>
+        <button class="button" onclick="stopTimer()"> Lauf abschließen</button>
+        <button class="button" onclick="resetProgress()">Zurücksetzen</button>
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -190,7 +190,7 @@
         scannedCodes.forEach(code => {
             if (qrLocations[code]) {
                 const marker = L.marker(qrLocations[code]).addTo(map)
-                    .bindPopup(`📍 Punkt ${code} gefunden!`);
+                    .bindPopup(`Posten ${code} gefunden!`);
                 markers.push(marker);
             }
         });
