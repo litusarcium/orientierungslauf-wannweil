@@ -157,101 +157,118 @@
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script>
-        const qrLocations = {
-            "01": [48.137154, 11.576124], // Beispiel: München
-            "02": [52.520008, 13.404954], // Berlin
-            "03": [50.110924, 8.682127]   // Frankfurt
-        };
+<script>
+    const qrLocations = {
+        "01": [48.137154, 11.576124],  // München
+        "02": [52.520008, 13.404954],  // Berlin
+        "03": [50.110924, 8.682127],   // Frankfurt
+        "04": [48.775846, 9.182932],   // Stuttgart
+        "05": [53.551086, 9.993682],   // Hamburg
+        "06": [51.227741, 6.773456],   // Düsseldorf
+        "07": [49.487459, 8.466039],   // Mannheim
+        "08": [50.937531, 6.960279],   // Köln
+        "09": [48.856613, 2.352222],   // Paris (Testpunkt)
+        "10": [51.050409, 13.737262]   // Dresden
+    };
 
-        let scannedCodes = JSON.parse(localStorage.getItem("qrProgress")) || [];
-        let timeStamps = JSON.parse(localStorage.getItem("qrTimestamps")) || [];
-        let startTime = timeStamps.length > 0 ? timeStamps[0] : null;
-        let timerRunning = true;
+    let scannedCodes = JSON.parse(localStorage.getItem("qrProgress")) || [];
+    let timeStamps = JSON.parse(localStorage.getItem("qrTimestamps")) || [];
+    let startTime = timeStamps.length > 0 ? timeStamps[0] : null;
+    let timerRunning = startTime !== null; // Timer startet erst nach erstem Scan
 
-        const map = L.map('map').setView([51.1657, 10.4515], 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        let markers = [];
+    const map = L.map('map').setView([51.1657, 10.4515], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    let markers = [];
 
-        function resetMapMarkers() {
-            markers.forEach(marker => marker.remove());
-            markers = [];
-        }
+    function resetMapMarkers() {
+        markers.forEach(marker => marker.remove());
+        markers = [];
+    }
 
-        function updateMapMarkers() {
-            resetMapMarkers();
-            scannedCodes.forEach(code => {
-                if (qrLocations[code]) {
-                    const marker = L.marker(qrLocations[code]).addTo(map)
-                        .bindPopup(`QR-Code ${code} gefunden!`);
-                    markers.push(marker);
-                }
-            });
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const scannedCode = urlParams.get("code");
-
-        if (scannedCode && !scannedCodes.includes(scannedCode)) {
-            let currentTime = new Date().getTime();
-            scannedCodes.push(scannedCode);
-            timeStamps.push(currentTime);
-            if (!startTime) startTime = currentTime;
-            localStorage.setItem("qrProgress", JSON.stringify(scannedCodes));
-            localStorage.setItem("qrTimestamps", JSON.stringify(timeStamps));
-            alert(`QR-Code ${scannedCode} erfolgreich gescannt!`);
-        }
-
-        function updateQRList() {
-            const container = document.getElementById("qrContainer");
-            container.innerHTML = "";
-
-            scannedCodes.forEach((code, index) => {
-                let timeDiffFormatted = "0:00";
-                if (index > 0) {
-                    let timeDiffMS = timeStamps[index] - timeStamps[index - 1];
-                    let minutes = Math.floor(timeDiffMS / 60000);
-                    let seconds = Math.floor((timeDiffMS % 60000) / 1000);
-                    timeDiffFormatted = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-                }
-
-                const div = document.createElement("div");
-                div.className = "qr-item";
-                div.innerText = `📍 Punkt ${code} (${timeDiffFormatted})`;
-                container.appendChild(div);
-            });
-
-            updateTotalTime();
-        }
-
-        function updateTotalTime() {
-            if (startTime && timerRunning) {
-                let totalTime = new Date().getTime() - startTime;
-                let minutes = Math.floor(totalTime / 60000);
-                let seconds = Math.floor((totalTime % 60000) / 1000);
-                document.getElementById("totalTime").innerText = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+    function updateMapMarkers() {
+        resetMapMarkers();
+        scannedCodes.forEach(code => {
+            if (qrLocations[code]) {
+                const marker = L.marker(qrLocations[code]).addTo(map)
+                    .bindPopup(`📍 Punkt ${code} gefunden!`);
+                markers.push(marker);
             }
-        }
+        });
+    }
 
-        function stopTimer() {
-            timerRunning = false;
-        }
+    const urlParams = new URLSearchParams(window.location.search);
+    const scannedCode = urlParams.get("code");
 
-        function resetProgress() {
-            localStorage.removeItem("qrProgress");
-            localStorage.removeItem("qrTimestamps");
-            scannedCodes = [];
-            timeStamps = [];
-            startTime = null;
+    if (scannedCode && !scannedCodes.includes(scannedCode)) {
+        let currentTime = new Date().getTime();
+
+        // Falls dies der erste Scan ist, Timer starten
+        if (scannedCodes.length === 0) {
+            startTime = currentTime;
             timerRunning = true;
-            updateQRList();
-            resetMapMarkers();
         }
 
+        scannedCodes.push(scannedCode);
+        timeStamps.push(currentTime);
+        localStorage.setItem("qrProgress", JSON.stringify(scannedCodes));
+        localStorage.setItem("qrTimestamps", JSON.stringify(timeStamps));
+        localStorage.setItem("startTime", startTime);
+        alert(`✅ QR-Code ${scannedCode} erfolgreich gescannt!`);
+    }
+
+    function updateQRList() {
+        const container = document.getElementById("qrContainer");
+        container.innerHTML = "";
+
+        scannedCodes.forEach((code, index) => {
+            let timeDiffFormatted = "0:00";
+            if (index > 0) {
+                let timeDiffMS = timeStamps[index] - timeStamps[index - 1];
+                let minutes = Math.floor(timeDiffMS / 60000);
+                let seconds = Math.floor((timeDiffMS % 60000) / 1000);
+                timeDiffFormatted = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+            }
+
+            const div = document.createElement("div");
+            div.className = "qr-item";
+            div.innerText = `📍 Punkt ${code} (${timeDiffFormatted})`;
+            container.appendChild(div);
+        });
+
+        updateTotalTime();
+    }
+
+    function updateTotalTime() {
+        if (startTime && timerRunning) {
+            let totalTime = new Date().getTime() - startTime;
+            let minutes = Math.floor(totalTime / 60000);
+            let seconds = Math.floor((totalTime % 60000) / 1000);
+            document.getElementById("totalTime").innerText = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+        }
+    }
+
+    function stopTimer() {
+        timerRunning = false;
+    }
+
+    function resetProgress() {
+        localStorage.removeItem("qrProgress");
+        localStorage.removeItem("qrTimestamps");
+        localStorage.removeItem("startTime");
+        scannedCodes = [];
+        timeStamps = [];
+        startTime = null;
+        timerRunning = false;
+        document.getElementById("totalTime").innerText = "0:00"; // **Gesamtzeit auf 0 setzen**
         updateQRList();
-        updateMapMarkers();
-        setInterval(updateTotalTime, 1000);
-    </script>
+        resetMapMarkers();
+    }
+
+    updateQRList();
+    updateMapMarkers();
+    setInterval(updateTotalTime, 1000);
+</script>
+
 
 </body>
 </html>
