@@ -170,16 +170,16 @@ body {
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
     const qrLocations = {
-        "01": [48.137154, 11.576124],  // München
-        "02": [52.520008, 13.404954],  // Berlin
-        "03": [50.110924, 8.682127],   // Frankfurt
-        "04": [48.775846, 9.182932],   // Stuttgart
-        "05": [53.551086, 9.993682],   // Hamburg
-        "06": [51.227741, 6.773456],   // Düsseldorf
-        "07": [49.487459, 8.466039],   // Mannheim
-        "08": [50.937531, 6.960279],   // Köln
-        "09": [48.856613, 2.352222],   // Paris (Testpunkt)
-        "10": [51.050409, 13.737262]   // Dresden
+        "01": [48.5205974, 9.1469796],  // München
+        "02": [48.5205974, 9.147],  // Berlin
+        "03": [48.5205974, 9.148],   // Frankfurt
+        "04": [48.5205974, 9.149],   // Stuttgart
+        "05": [48.5205974, 9.15],   // Hamburg
+        "06": [48.5205974, 9.151],   // Düsseldorf
+        "07": [48.5205974, 9.152],   // Mannheim
+        "08": [48.5205974, 9.153],   // Köln
+        "09": [48.5205974, 9.154],   // Paris (Testpunkt)
+        "10": [48.5205974, 9.155]   // Dresden
     };
 
     let scannedCodes = JSON.parse(localStorage.getItem("qrProgress")) || [];
@@ -187,7 +187,7 @@ body {
     let startTime = timeStamps.length > 0 ? timeStamps[0] : null;
     let timerRunning = startTime !== null; // Timer startet erst nach erstem Scan
 
-    const map = L.map('map').setView([51.1657, 10.4515], 6);
+    const map = L.map('map').setView([48.5140646, 9.1524487], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap Contributors</a>' 
     }).addTo(map);
