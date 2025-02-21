@@ -163,7 +163,7 @@ body {
 
     <div class="footer">
         <h3>Gesamtzeit: <span id="totalTime">0:00</span></h3>
-        <button class="button" onclick="finishRun()"> Lauf abschließen</button>
+        <button class="button" onclick="stopTimer()"> Lauf abschließen</button>
         <button class="button" onclick="resetProgress()">Zurücksetzen</button>
     </div>
 
@@ -259,11 +259,15 @@ body {
             document.getElementById("totalTime").innerText = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
         }
     }
-function finishRun(){
-timerRunning = false;
-alert('Lauf beendet.');
-}
-    
+
+    function stopTimer() {
+        timerRunning = false;
+         let totalTimeMS = new Date().getTime() - timeStamps[0]; // Zeit seit dem ersten Scan
+    let minutes = Math.floor(totalTimeMS / 60000); // Ganze Minuten
+    let seconds = Math.floor((totalTimeMS % 60000) / 1000); // Restliche Sekunden
+    alert(`Lauf beendet. Deine Zeit beträgt: ${minutes}:${seconds < 10 ? "0" : ""}${seconds} Min.`); 
+    }
+
     function resetProgress() {
         localStorage.removeItem("qrProgress");
         localStorage.removeItem("qrTimestamps");
@@ -285,4 +289,3 @@ alert('Lauf beendet.');
 
 </body>
 </html>
-
