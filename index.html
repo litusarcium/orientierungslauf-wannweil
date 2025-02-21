@@ -271,14 +271,14 @@ function saveSelectedPosten() {
     }
 
     function finishRun() {
-    let selectedPosten = JSON.parse(localStorage.getItem("selectedPosten")) || [];
-    let missingPosten = selectedPosten.filter(p => !scannedCodes.includes(p));
+    let correctOrder = selectedPosten.length === scannedCodes.length &&
+    selectedPosten.every((code, index) => code === scannedCodes[index]);
 
-    if (missingPosten.length === 0) {
-        alert("✅ Lauf erfolgreich abgeschlossen! Alle Posten erreicht.");
-    } else {
-        alert("❌ Lauf nicht vollständig! Fehlende Posten: " + missingPosten.join(", "));
-    }
+if (correctOrder) {
+    alert("✅ Lauf erfolgreich in der richtigen Reihenfolge abgeschlossen!");
+} else {
+    alert("⚠️ Lauf abgeschlossen, aber die Reihenfolge war nicht korrekt.");
+}
 }
     function resetProgress() {
         localStorage.removeItem("qrProgress");
