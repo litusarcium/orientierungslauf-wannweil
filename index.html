@@ -270,14 +270,17 @@ function saveSelectedPosten() {
         }
     }
 
-    function stopTimer() {
-    let selectedPosten = JSON.parse(localStorage.getItem("selectedPosten")) || [];
-    let missingPosten = selectedPosten.filter(p => !scannedCodes.includes(p));
+    function finishRun() {
+    if (selectedPosten.length > 0) {
+        let correctOrder = JSON.stringify(selectedPosten) === JSON.stringify(scannedCodes);
 
-    if (missingPosten.length === 0) {
-        alert("✅ Lauf erfolgreich abgeschlossen! Alle Posten erreicht.");
+        if (correctOrder) {
+            alert("✅ Lauf erfolgreich in der richtigen Reihenfolge abgeschlossen!");
+        } else {
+            alert("⚠️ Lauf abgeschlossen, aber die Posten wurden nicht in der vorgegebenen Reihenfolge abgelaufen.");
+        }
     } else {
-        alert("❌ Lauf nicht vollständig! Fehlende Posten: " + missingPosten.join(", "));
+        alert("✅ Lauf abgeschlossen!");
     }
 }
 
