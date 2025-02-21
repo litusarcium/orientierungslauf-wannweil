@@ -270,7 +270,7 @@ function saveSelectedPosten() {
         }
     }
 
-    function finishRun() {
+    function stopTimer() {
     if (selectedPosten.length > 0) {
         let correctOrder = JSON.stringify(selectedPosten) === JSON.stringify(scannedCodes);
 
