@@ -160,7 +160,12 @@ body {
             <div id="map"></div>
         </div>
    </div>
-
+<div id="selection-container">
+    <h2>Posten eingeben</h2>
+    <p>Gib die Nummern der Posten ein, die du ablaufen willst (z. B. 01,02,03):</p>
+    <input type="text" id="postenInput" placeholder="01,02,03">
+    <button class="start-btn" onclick="saveSelectedPosten()">✅ Speichern</button>
+</div>
     <div class="footer">
         <h3>Gesamtzeit: <span id="totalTime">0:00</span></h3>
         <button class="button" onclick="stopTimer()"> Lauf abschließen</button>
@@ -197,7 +202,12 @@ body {
         markers.forEach(marker => marker.remove());
         markers = [];
     }
-
+function saveSelectedPosten() {
+    let input = document.getElementById("postenInput").value;
+    let postenArray = input.split(",").map(p => p.trim()); // Eingabe in Array umwandeln
+    localStorage.setItem("selectedPosten", JSON.stringify(postenArray)); // Speichern
+    alert("Posten gespeichert: " + postenArray.join(", "));
+}
     function updateMapMarkers() {
         resetMapMarkers();
         scannedCodes.forEach(code => {
@@ -261,12 +271,15 @@ body {
     }
 
     function stopTimer() {
-        timerRunning = false;
-         let totalTimeMS = new Date().getTime() - timeStamps[0]; // Zeit seit dem ersten Scan
-    let minutes = Math.floor(totalTimeMS / 60000); // Ganze Minuten
-    let seconds = Math.floor((totalTimeMS % 60000) / 1000); // Restliche Sekunden
-    alert(`Lauf beendet. Deine Zeit beträgt: ${minutes}:${seconds < 10 ? "0" : ""}${seconds} Min.`); 
+    let selectedPosten = JSON.parse(localStorage.getItem("selectedPosten")) || [];
+    let missingPosten = selectedPosten.filter(p => !scannedCodes.includes(p));
+
+    if (missingPosten.length === 0) {
+        alert("✅ Lauf erfolgreich abgeschlossen! Alle Posten erreicht.");
+    } else {
+        alert("❌ Lauf nicht vollständig! Fehlende Posten: " + missingPosten.join(", "));
     }
+}
 
     function resetProgress() {
         localStorage.removeItem("qrProgress");
