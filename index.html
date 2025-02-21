@@ -160,12 +160,7 @@ body {
             <div id="map"></div>
         </div>
    </div>
-<div id="selection-container">
-    <h2>Posten eingeben</h2>
-    <p>Gib die Nummern der Posten ein, die du ablaufen willst (z. B. 01,02,03):</p>
-    <input type="text" id="postenInput" placeholder="01,02,03">
-    <button class="start-btn" onclick="saveSelectedPosten()">✅ Speichern</button>
-</div>
+
     <div class="footer">
         <h3>Gesamtzeit: <span id="totalTime">0:00</span></h3>
         <button class="button" onclick="finishRun()"> Lauf abschließen</button>
@@ -202,12 +197,7 @@ body {
         markers.forEach(marker => marker.remove());
         markers = [];
     }
-function saveSelectedPosten() {
-    let input = document.getElementById("postenInput").value;
-    let postenArray = input.split(",").map(p => p.trim()); // Eingabe in Array umwandeln
-    localStorage.setItem("selectedPosten", JSON.stringify(postenArray)); // Speichern
-    alert("Posten gespeichert: " + postenArray.join(", "));
-}
+
     function updateMapMarkers() {
         resetMapMarkers();
         scannedCodes.forEach(code => {
@@ -269,22 +259,9 @@ function saveSelectedPosten() {
             document.getElementById("totalTime").innerText = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
         }
     }
-
-function finishRun() {
-  
-    if (selectedPosten.length > 0) {
-        let correctOrder = JSON.stringify(selectedPosten) === JSON.stringify(scannedCodes);
-
-        if (correctOrder) {
-            alert("✅ Lauf erfolgreich in der richtigen Reihenfolge abgeschlossen!");
-        } else {
-            alert("⚠️ Lauf abgeschlossen, aber die Posten wurden nicht in der vorgegebenen Reihenfolge abgelaufen.");
-        }
-    } else {
-        alert("✅ Lauf abgeschlossen!");
-    }
-
-
+function finishRun(){
+timerRunning = false;
+alert('Lauf beendet.'
 }
     
     function resetProgress() {
